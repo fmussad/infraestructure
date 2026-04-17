@@ -1,0 +1,22 @@
+# Traefik static configuration (v3).
+# Routing for apps still comes from Docker labels on each container (Docker provider).
+
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+entryPoints:
+  web:
+    address: ":80"
+
+providers:
+  docker:
+    endpoint: unix:///var/run/docker.sock
+    exposedByDefault: false
+    network: felixmussa_net
+
+api:
+  dashboard: false
+
+log:
+  level: INFO

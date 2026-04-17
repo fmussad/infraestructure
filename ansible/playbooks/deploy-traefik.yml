@@ -1,0 +1,35 @@
+---
+- name: Deploy Traefik
+  hosts: felixmussa_vps
+  become: true
+  tasks:
+    - name: Create Traefik directory on VPS
+      ansible.builtin.file:
+        path: "{{ felixmussa_root }}/traefik"
+        state: directory
+        mode: "0755"
+
+    - name: Copy Traefik files from control node
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../../traefik/{{ item }}"
+        dest: "{{ felixmussa_root }}/traefik/{{ item }}"
+        mode: "0644"
+      loop:
+        - docker-compose.yml
+        - traefik.yml
+        - .env.example
+
+    - name: Ensure Traefik .env exists
+      ansible.builtin.shell: |
+        test -f .env || cp .env.example .env
+      args:
+        chdir: "{{ felixmussa_root }}/traefik"
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Start Traefik stack
+      ansible.builtin.command: docker compose up -d --build
+      args:
+        chdir: "{{ felixmussa_root }}/traefik"
+      environment:
+        COMPOSE_MENU: "false"

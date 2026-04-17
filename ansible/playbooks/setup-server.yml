@@ -1,0 +1,22 @@
+---
+# Verifies VPS prerequisites (Docker + compose). Does not install Docker by default.
+- name: Setup — VPS prerequisite checks
+  hosts: felixmussa_vps
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Check Docker is installed
+      ansible.builtin.command: docker version
+      register: docker_version
+      changed_when: false
+
+    - name: Check docker compose plugin
+      ansible.builtin.command: docker compose version
+      register: compose_version
+      changed_when: false
+
+    - name: Print versions
+      ansible.builtin.debug:
+        msg:
+          - "{{ docker_version.stdout_lines | default([]) }}"
+          - "{{ compose_version.stdout_lines | default([]) }}"

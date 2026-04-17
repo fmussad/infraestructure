@@ -1,0 +1,7 @@
+---
+- import_playbook: setup-server.yml
+- import_playbook: deploy-networks.yml
+- import_playbook: deploy-traefik.yml
+- import_playbook: deploy-landing.yml
+- import_playbook: deploy-inventory.yml
+- import_playbook: deploy-payroll.yml

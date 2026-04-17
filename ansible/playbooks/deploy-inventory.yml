@@ -1,0 +1,25 @@
+---
+- name: Deploy inventory
+  hosts: felixmussa_vps
+  become: true
+  tasks:
+    - name: Clone or update inventory (main)
+      ansible.builtin.git:
+        repo: "{{ inventory_git_url }}"
+        dest: "{{ felixmussa_root }}/inventory"
+        version: "{{ felixmussa_git_branch }}"
+        update: true
+
+    - name: Ensure inventory .env exists
+      ansible.builtin.shell: |
+        test -f .env || cp .env.example .env
+      args:
+        chdir: "{{ felixmussa_root }}/inventory"
+        executable: /bin/bash
+      ignore_errors: true
+      changed_when: false
+
+    - name: Start inventory stack
+      ansible.builtin.command: docker compose up -d --build
+      args:
+        chdir: "{{ felixmussa_root }}/inventory"

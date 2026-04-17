@@ -1,0 +1,25 @@
+---
+- name: Deploy landing
+  hosts: felixmussa_vps
+  become: true
+  tasks:
+    - name: Clone or update landing (main)
+      ansible.builtin.git:
+        repo: "{{ landing_git_url }}"
+        dest: "{{ felixmussa_root }}/landing"
+        version: "{{ felixmussa_git_branch }}"
+        update: true
+
+    - name: Ensure landing .env exists
+      ansible.builtin.shell: |
+        test -f .env || cp .env.example .env
+      args:
+        chdir: "{{ felixmussa_root }}/landing"
+        executable: /bin/bash
+      ignore_errors: true
+      changed_when: false
+
+    - name: Start landing stack
+      ansible.builtin.command: docker compose up -d --build
+      args:
+        chdir: "{{ felixmussa_root }}/landing"

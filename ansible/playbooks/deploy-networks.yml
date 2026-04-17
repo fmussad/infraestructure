@@ -1,0 +1,15 @@
+---
+- name: Create Docker networks
+  hosts: felixmussa_vps
+  become: true
+  tasks:
+    - name: Ensure Docker networks exist
+      ansible.builtin.shell: |
+        docker network inspect {{ item }} >/dev/null 2>&1 || docker network create {{ item }}
+      loop:
+        - felixmussa_net
+        - inventory_net
+        - payroll_net
+      args:
+        executable: /bin/bash
+      changed_when: true

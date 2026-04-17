@@ -1,0 +1,42 @@
+---
+- name: Deploy payroll (frontend + API)
+  hosts: felixmussa_vps
+  become: true
+  tasks:
+    - name: Clone or update payroll-api
+      ansible.builtin.git:
+        repo: "{{ payroll_api_git_url }}"
+        dest: "{{ felixmussa_root }}/payroll-api"
+        version: "{{ felixmussa_git_branch }}"
+        update: true
+
+    - name: Clone or update payroll-frontend
+      ansible.builtin.git:
+        repo: "{{ payroll_frontend_git_url }}"
+        dest: "{{ felixmussa_root }}/payroll-frontend"
+        version: "{{ felixmussa_git_branch }}"
+        update: true
+
+    - name: Ensure payroll-api .env from example if present
+      ansible.builtin.shell: |
+        test -f .env || (test -f .env.example && cp .env.example .env || true)
+      args:
+        chdir: "{{ felixmussa_root }}/payroll-api"
+        executable: /bin/bash
+      changed_when: false
+
+    - name: Render payroll-frontend .env (VITE_API_BASE_URL for browser)
+      ansible.builtin.template:
+        src: "{{ playbook_dir }}/../templates/payroll-frontend.env.j2"
+        dest: "{{ felixmussa_root }}/payroll-frontend/.env"
+        mode: "0644"
+
+    - name: Start payroll-api stack
+      ansible.builtin.command: docker compose up -d --build
+      args:
+        chdir: "{{ felixmussa_root }}/payroll-api"
+
+    - name: Start payroll-frontend stack
+      ansible.builtin.command: docker compose up -d --build
+      args:
+        chdir: "{{ felixmussa_root }}/payroll-frontend"

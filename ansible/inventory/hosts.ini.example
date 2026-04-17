@@ -1,0 +1,12 @@
+[felixmussa_vps]
+felixmussa-vps ansible_host=YOUR_VPS_IP ansible_user=root ansible_python_interpreter=/usr/bin/python3
+
+[felixmussa_vps:vars]
+felixmussa_root=/opt/felixmussa
+felixmussa_git_branch=main
+felixmussa_public_ip=YOUR_VPS_IP
+
+landing_git_url=https://github.com/fmussad/landing.git
+inventory_git_url=https://github.com/fmussad/inventory.git
+payroll_frontend_git_url=https://github.com/fmussad/payroll-frontend.git
+payroll_api_git_url=https://github.com/fmussad/payroll-api.git
